@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2024 by Fred George
- * May be used freely except for training; license required for training.
  * @author Fred George  fredgeorge@acm.org
+ * Licensed under the MIT License; see LICENSE file in root.
  */
 
 namespace Engine.Commands;
@@ -26,6 +26,9 @@ public class Context {
     public string String(ParameterLabel label) => (string)_parameters[label];
 
     public double Double(ParameterLabel label) => (double)_parameters[label];
+
+    internal Context Subset(params ParameterLabel[] labels) => 
+        new(_parameters.Where(kvp => labels.Contains(kvp.Key)).ToDictionary());
 }
 
 // ReSharper disable once InconsistentNaming

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2024 by Fred George
- * May be used freely except for training; license required for training.
  * @author Fred George  fredgeorge@acm.org
+ * Licensed under the MIT License; see LICENSE file in root.
  */
 
 using System;
@@ -21,7 +21,7 @@ public class ContextTest {
         _c[Wealth] = 0.45e6;
     }
     [Fact]
-    void Access() {
+    public void Access() {
         Assert.Equal(45, _c.Int(Age));
         Assert.Equal("Jennifer", _c.String(Name));
         Assert.Equal(450_000.0, _c.Double(Wealth));
@@ -31,6 +31,15 @@ public class ContextTest {
         _c[Spouse] = "Harold";
         Assert.Equal("Harold", _c.String(Spouse));
         Assert.Throws<InvalidCastException>(() => _c.Double(Spouse));  // Attempt to extract wrong type
+        Assert.Throws<InvalidOperationException>(() => _c[Age]);  // Cannot access value directly
+    }
+
+    [Fact]
+    public void ExtractSubContext() {
+        Context subContext = _c.Subset(Age, Name);
+        Assert.Equal(45, subContext.Int(Age));
+        Assert.Equal("Jennifer", subContext.String(Name));
+        Assert.Throws<KeyNotFoundException>(() => subContext.Double(Wealth));  // No such element in Context
     }
 }
 

@@ -15,11 +15,13 @@ namespace Engine.Tests.Unit;
 // Ensures Context manipulation works correctly
 public class ContextTest {
     private readonly Context _c = new();
+    
     public ContextTest() {
         _c[Age] = 45;
         _c[Name] = "Jennifer";
         _c[Wealth] = 0.45e6;
     }
+    
     [Fact]
     public void Access() {
         Assert.Equal(45, _c.Int(Age));
@@ -36,10 +38,29 @@ public class ContextTest {
 
     [Fact]
     public void ExtractSubContext() {
-        Context subContext = _c.Subset(Age, Name);
+        var subContext = _c.Subset(Age, Name);
         Assert.Equal(45, subContext.Int(Age));
         Assert.Equal("Jennifer", subContext.String(Name));
         Assert.Throws<KeyNotFoundException>(() => subContext.Double(Wealth));  // No such element in Context
+    }
+
+    [Fact]
+    public void AdoptChangesFromSubContext() {
+        var subContext = new Context();
+        subContext[Age] = 23;
+        subContext[Spouse] = "Harold";
+        _c.UpdateFrom(subContext, new List<ParameterLabel> {Age, Spouse});
+        Assert.Equal(23, _c.Int(Age));
+        Assert.Equal("Jennifer", _c.String(Name));
+        Assert.Equal(450_000.0, _c.Double(Wealth));
+        Assert.Equal("Harold", _c.String(Spouse));
+    }
+
+    [Fact]
+    public void FailIfExtractingNonExistentLabel() {
+        var subContext = new Context();
+        subContext[Spouse] = "Harold";
+        Assert.Throws<KeyNotFoundException>(() => _c.UpdateFrom(subContext, new List<ParameterLabel> { Age, Spouse }));
     }
 }
 

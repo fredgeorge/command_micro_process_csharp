@@ -29,6 +29,9 @@ public class Context {
 
     internal Context Subset(params ParameterLabel[] labels) => 
         new(_parameters.Where(kvp => labels.Contains(kvp.Key)).ToDictionary());
+
+    internal void UpdateFrom(Context subContext, List<ParameterLabel> changedLabels) => 
+        changedLabels.ForEach(label => this._parameters[label] = subContext._parameters[label]);
 }
 
 // ReSharper disable once InconsistentNaming

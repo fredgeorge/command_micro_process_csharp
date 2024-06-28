@@ -17,8 +17,8 @@ public class Context {
     public Context() : this(new()) { }
 
     public object this[ParameterLabel label] {
-        get { throw new InvalidOperationException("Use Int(), String(), or Double() to extract Context values"); }
-        set { _parameters[label] = value; }
+        get => throw new InvalidOperationException("Use Int(), String(), or Double() to extract Context values");
+        set => _parameters[label] = value;
     }
 
     public int Int(ParameterLabel label) => (int)_parameters[label];
@@ -27,7 +27,7 @@ public class Context {
 
     public double Double(ParameterLabel label) => (double)_parameters[label];
 
-    internal Context Subset(params ParameterLabel[] labels) => 
+    internal Context Subset(List<ParameterLabel> labels) => 
         new(_parameters.Where(kvp => labels.Contains(kvp.Key)).ToDictionary());
 
     internal void UpdateFrom(Context subContext, List<ParameterLabel> changedLabels) => 
@@ -36,6 +36,6 @@ public class Context {
 
 // ReSharper disable once InconsistentNaming
 public interface ParameterLabel {
-    String Label { get; }
+    String Name { get; }
     static virtual ParameterLabel? LabelFor(string label) => null;
 }

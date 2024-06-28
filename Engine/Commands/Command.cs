@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2024 by Fred George
- * May be used freely except for training; license required for training.
  * @author Fred George  fredgeorge@acm.org
+ * Licensed under the MIT License; see LICENSE file in root.
  */
 
 namespace Engine.Commands;
@@ -17,12 +17,13 @@ public enum ExecutionResult {
     NotExecuted, Succeeded, Failed, Suspended, Reversed, ReveralFailed
 }
 
-internal interface Task {
+// ReSharper disable once InconsistentNaming
+public interface Task {
     List<ParameterLabel> ReferencedLabels { get; }
     List<ParameterLabel> UpdatedLabels { get;  }
-    TaskResult execute(Context c);
+    TaskResult Execute(Context c);
 }
 
 public enum TaskResult {
-    TaskSucceeded, TaskFailed, Task_Suspended
+    TaskSucceeded, TaskFailed, TaskSuspended
 }

@@ -4,6 +4,8 @@
  * @author Fred George  fredgeorge@acm.org
  */
 
+using System;
+using System.Collections.Generic;
 using Engine.Commands;
 using Xunit;
 using static Engine.Tests.Unit.DataLabel;
@@ -23,6 +25,12 @@ public class ContextTest {
         Assert.Equal(45, _c.Int(Age));
         Assert.Equal("Jennifer", _c.String(Name));
         Assert.Equal(450_000.0, _c.Double(Wealth));
+        Assert.Throws<KeyNotFoundException>(() => _c.String(Spouse));  // No such element in Context
+        Assert.Throws<InvalidCastException>(() => _c.Double(Age));  // Attempt to extract wrong type
+        Assert.Throws<InvalidCastException>(() => _c.Int(Name));  // Attempt to extract wrong type
+        _c[Spouse] = "Harold";
+        Assert.Equal("Harold", _c.String(Spouse));
+        Assert.Throws<InvalidCastException>(() => _c.Double(Spouse));  // Attempt to extract wrong type
     }
 }
 

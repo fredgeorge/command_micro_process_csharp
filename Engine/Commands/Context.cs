@@ -21,14 +21,11 @@ public class Context {
         set { _parameters[label] = value; }
     }
 
-    public int Int(ParameterLabel label) => (int)SafeParameter(label);
+    public int Int(ParameterLabel label) => (int)_parameters[label];
 
-    public string String(ParameterLabel label) => (string)SafeParameter(label);
+    public string String(ParameterLabel label) => (string)_parameters[label];
 
-    public double Double(ParameterLabel label) => (double)SafeParameter(label);
-
-    private object SafeParameter(ParameterLabel label) => 
-        _parameters[label] ?? throw new ArgumentException("No context value found for {label}");
+    public double Double(ParameterLabel label) => (double)_parameters[label];
 }
 
 // ReSharper disable once InconsistentNaming

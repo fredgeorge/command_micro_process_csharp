@@ -57,10 +57,22 @@ public class ContextTest {
     }
 
     [Fact]
-    public void FailIfExtractingNonExistentLabel() {
+    public void CannotExtractDataThatDoesNotExist() {
         var subContext = new Context();
         subContext[Spouse] = "Harold";
         Assert.Throws<KeyNotFoundException>(() => _c.UpdateFrom(subContext, new List<ParameterLabel> { Age, Spouse }));
+    }
+
+    [Fact]
+    public void IgnoreLabelsThatAreNotSpecified() {
+        var subContext = new Context();
+        subContext[Age] = 23;
+        subContext[Spouse] = "Harold";
+        _c.UpdateFrom(subContext, new List<ParameterLabel> {Spouse});
+        Assert.Equal(45, _c.Int(Age));
+        Assert.Equal("Jennifer", _c.String(Name));
+        Assert.Equal(450_000.0, _c.Double(Wealth));
+        Assert.Equal("Harold", _c.String(Spouse));
     }
 }
 

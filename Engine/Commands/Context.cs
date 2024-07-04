@@ -10,7 +10,7 @@ namespace Engine.Commands;
 public class Context {
     private readonly Dictionary<ParameterLabel, object> _parameters;
 
-    internal Context(Dictionary<ParameterLabel, object> parameters) {
+    private Context(Dictionary<ParameterLabel, object> parameters) {
         _parameters = parameters;
     }
 

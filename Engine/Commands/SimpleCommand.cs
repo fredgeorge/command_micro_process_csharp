@@ -6,6 +6,7 @@
 
 using static Engine.Commands.ExecutionResult;
 using static Engine.Commands.TaskResult;
+
 namespace Engine.Commands;
 
 // Understands something that can be done (and undone)
@@ -19,18 +20,38 @@ public class SimpleCommand : Command {
     }
 
     public ExecutionResult Execute(Context c) {
-        var subContext = c.Subset(_primaryTask.ReferencedLabels);
-        var taskResult = _primaryTask.Execute(subContext);
-        c.UpdateFrom(subContext, _primaryTask.UpdatedLabels);
-        return taskResult switch {
-            TaskSucceeded => Succeeded,
-            TaskFailed => Failed,
-            TaskSuspended => Suspended,
-            _ => throw new NotImplementedException("Unexpected TaskResult value")
-        };
+        try {
+            var subContext = c.Subset(_primaryTask.ReferencedLabels);
+            var taskResult = _primaryTask.Execute(subContext);
+            c.UpdateFrom(subContext, _primaryTask.UpdatedLabels);
+            return taskResult switch {
+                TaskSucceeded => Succeeded,
+                TaskFailed => Failed,
+                TaskSuspended => Suspended,
+                _ => throw new NotImplementedException("Unexpected TaskResult value")
+            };
+        }
+        catch (Exception e) {
+            return Failed;
+        }
     }
 
     public ExecutionResult Undo(Context c) {
-        throw new NotImplementedException();
+        try {
+            var subContext = c.Subset(_reversingTask.ReferencedLabels);
+            var taskResult = _reversingTask.Execute(subContext);
+            c.UpdateFrom(subContext, _reversingTask.UpdatedLabels);
+            return taskResult switch {
+                TaskSucceeded => Reversed,
+                TaskFailed => ReversalFailed,
+                TaskSuspended => ReversalFailed,
+                _ => throw new NotImplementedException("Unexpected reversal TaskResult value")
+            };
+        }
+        catch {
+            return ReversalFailed;
+        }
     }
+
+    public void Accept(CommandVisitor visitor) => visitor.Visit(this);
 }

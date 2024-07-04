@@ -46,21 +46,21 @@ internal class CrashingTask: Task {
     public TaskResult Execute(Context c) => throw new Exception("Deliberate crash for testing purposes");
 }
 
-internal class TestTaskLabel : TaskBuilder {
-    internal static readonly TestTaskLabel SuccessfulTask = new(() => new TestTask(TaskSucceeded));
-    internal static readonly TestTaskLabel SuccessfulRecovery = new(() => new TestTask(TaskSucceeded));
-    internal static readonly TestTaskLabel FailedTask = new(() => new TestTask(TaskFailed));
-    internal static readonly TestTaskLabel FailedRecovery = new(() => new TestTask(TaskFailed));
-    internal static readonly TestTaskLabel SuspendedTask = new(() => new TestTask(TaskSuspended));
-    internal static readonly TestTaskLabel CrashedTask = new(() => CrashingTask.Instance);
-    internal static readonly TestTaskLabel ReadAbCwriteD = new(() => 
+internal class TestTaskBuilder : TaskBuilder {
+    internal static readonly TestTaskBuilder SuccessfulTask = new(() => new TestTask(TaskSucceeded));
+    internal static readonly TestTaskBuilder SuccessfulRecovery = new(() => new TestTask(TaskSucceeded));
+    internal static readonly TestTaskBuilder FailedTask = new(() => new TestTask(TaskFailed));
+    internal static readonly TestTaskBuilder FailedRecovery = new(() => new TestTask(TaskFailed));
+    internal static readonly TestTaskBuilder SuspendedTask = new(() => new TestTask(TaskSuspended));
+    internal static readonly TestTaskBuilder CrashedTask = new(() => CrashingTask.Instance);
+    internal static readonly TestTaskBuilder ReadAbcWriteD = new(() => 
         new TestTask(TaskSucceeded, new List<ParameterLabel>{A, B, C}, new List<ParameterLabel>{D}));
-    internal static readonly TestTaskLabel ReadAbCwriteBd = new(() => 
+    internal static readonly TestTaskBuilder ReadAbcWriteBd = new(() => 
         new TestTask(TaskSucceeded, new List<ParameterLabel>{A, B, C}, new List<ParameterLabel>{B, D}));
     
     private readonly Func<Task> _taskBuilder;
 
-    private TestTaskLabel(Func<Task> taskBuilder) {
+    private TestTaskBuilder(Func<Task> taskBuilder) {
         _taskBuilder = taskBuilder;
     }
     

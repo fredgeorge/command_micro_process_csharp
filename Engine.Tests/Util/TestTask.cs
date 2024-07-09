@@ -19,6 +19,7 @@ internal class TestTask : Task {
     private readonly TaskResult _result;
     private readonly List<ParameterLabel> _referencedLabels;
     private readonly List<ParameterLabel> _updatedLabels;
+    private bool _wasExecuted = false;
 
     internal TestTask(TaskResult result, List<ParameterLabel> referencedLabels, List<ParameterLabel> updatedLabels) {
         _result = result;
@@ -33,9 +34,22 @@ internal class TestTask : Task {
     public List<ParameterLabel> UpdatedLabels => _updatedLabels.ToList();
     
     public TaskResult Execute(Context c) {
+        if (_wasExecuted) throw new Exception("Task should only be executed once");
+        _wasExecuted = true;
         ReferencedLabels.ForEach(label => Assert.Equal(label.Name, c.String(label)));
         TestParameterLabel.AllLabels.ForEach(label => c[label] = label.Name + "+");
         return _result;
+    }
+}
+
+internal class SuspendOnceTask : Task {
+    private bool IsSuspended = true;
+    public List<ParameterLabel> ReferencedLabels => new();
+    public List<ParameterLabel> UpdatedLabels => new();
+    public TaskResult Execute(Context c) {
+        var result = IsSuspended ? TaskSuspended : TaskSucceeded;
+        IsSuspended = false;
+        return result;
     }
 }
 
@@ -51,7 +65,7 @@ internal class TestTaskBuilder : TaskBuilder {
     internal static readonly TestTaskBuilder SuccessfulRecovery = new(() => new TestTask(TaskSucceeded));
     internal static readonly TestTaskBuilder FailedTask = new(() => new TestTask(TaskFailed));
     internal static readonly TestTaskBuilder FailedRecovery = new(() => new TestTask(TaskFailed));
-    internal static readonly TestTaskBuilder SuspendedTask = new(() => new TestTask(TaskSuspended));
+    internal static readonly TestTaskBuilder SuspendedTask = new(() => new SuspendOnceTask());
     internal static readonly TestTaskBuilder CrashedTask = new(() => CrashingTask.Instance);
     internal static readonly TestTaskBuilder ReadAbcWriteD = new(() => 
         new TestTask(TaskSucceeded, new List<ParameterLabel>{A, B, C}, new List<ParameterLabel>{D}));

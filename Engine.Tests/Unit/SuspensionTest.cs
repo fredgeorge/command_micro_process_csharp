@@ -4,6 +4,7 @@
  * @author Fred George  fredgeorge@acm.org
  */
 
+using System;
 using Engine.Commands;
 using Engine.Tests.Util;
 using static Engine.Tests.Util.TestTaskBuilder;
@@ -32,6 +33,10 @@ public class SuspensionTest {
         Assert.Equal(Suspended, sequence.Execute(_c));
         var analysis = new CommandResultsTool(sequence);
         Assert.Equal(1, analysis["Suspension"]);
+        Assert.Equal(2, analysis["Successful"]);
         Assert.Equal(Succeeded, sequence.Execute(_c)); // Second execution should be successful
+        analysis = new CommandResultsTool(sequence);
+        Assert.Equal(0, analysis["Suspension"]);
+        Assert.Equal(3, analysis["Successful"]);
     }
 }

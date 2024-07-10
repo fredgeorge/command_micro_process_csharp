@@ -30,4 +30,6 @@ internal class CommandResultsTool : CommandVisitor {
             return _taskCounts.GetValueOrDefault(state);
         }
     }
+
+    public override string ToString() => _taskCounts.ToString();
 }

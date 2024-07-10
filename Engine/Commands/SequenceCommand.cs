@@ -45,7 +45,7 @@ public class SequenceCommand : Command {
     }
     
     public void Accept(CommandVisitor visitor) {
-        visitor.PreVisit(this);
+        visitor.PreVisit(this, _commands.Count);
         _commands.ForEach(command => command.Accept(visitor));
         visitor.PostVisit(this);
     }

@@ -13,7 +13,7 @@ namespace Engine.Commands;
 public class SimpleCommand : Command {
     private readonly Task _primaryTask;
     private readonly Task _reversingTask;
-    private State _state = NotExecutedState.Instance;
+    private State _state = NotExecuted.Instance;
 
     public SimpleCommand(Task primaryTask, Task reversingTask) {
         _primaryTask = primaryTask;
@@ -62,16 +62,20 @@ public class SimpleCommand : Command {
         }
     }
 
-    public void Accept(CommandVisitor visitor) => visitor.Visit(this);
-    
+    public void Accept(CommandVisitor visitor) {
+        var stateClass = _state.GetType().ToString();
+         var state = stateClass.Substring(stateClass.IndexOf("+") + 1);
+        visitor.Visit(this, state, _primaryTask, _reversingTask);
+    }
+
     private interface State {
         ExecutionResult Result { get; }
         ExecutionResult Execute(Context c, SimpleCommand command);
         ExecutionResult Undo(Context c, SimpleCommand command);
     }
     
-    private class NotExecutedState : State {
-        internal static readonly NotExecutedState Instance = new();
+    private class NotExecuted : State {
+        internal static readonly NotExecuted Instance = new();
 
         public ExecutionResult Result => 
             throw new InvalidOperationException("Cannot get result of a Command that was never executed");

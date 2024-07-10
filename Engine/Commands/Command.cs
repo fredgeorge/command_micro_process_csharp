@@ -32,7 +32,7 @@ public enum TaskResult {
 }
 
 public interface CommandVisitor {
-    void PreVisit(SequenceCommand command);
-    void PostVisit(SequenceCommand command);
-    void Visit(SimpleCommand command);
+    void PreVisit(SequenceCommand command, int subCommandCount) { }
+    void Visit(SimpleCommand command, string state, Task primaryTask, Task reversingTask) { }
+    void PostVisit(SequenceCommand command) { }
 }

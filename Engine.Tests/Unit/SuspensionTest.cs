@@ -5,6 +5,7 @@
  */
 
 using Engine.Commands;
+using Engine.Tests.Util;
 using static Engine.Tests.Util.TestTaskBuilder;
 using static Engine.Commands.ExecutionResult;
 using Xunit;
@@ -29,6 +30,8 @@ public class SuspensionTest {
             .Then(SuccessfulTask).Otherwise(SuccessfulRecovery)
             .Then(SuspendedTask).Otherwise(SuccessfulRecovery);
         Assert.Equal(Suspended, sequence.Execute(_c));
+        var analysis = new CommandResultsTool(sequence);
+        Assert.Equal(1, analysis["Suspension"]);
         Assert.Equal(Succeeded, sequence.Execute(_c)); // Second execution should be successful
     }
 }

@@ -5,6 +5,7 @@
  */
 
 using Engine.Commands;
+using Engine.Tests.Util;
 using static Engine.Tests.Util.TestTaskBuilder;
 using static Engine.Commands.ExecutionResult;
 using Xunit;
@@ -14,6 +15,7 @@ namespace Engine.Tests.Unit;
 // Ensures SequenceCommands work correctly
 public class SingleSequenceTest {
     private readonly Context _c = new();
+    private CommandResultsTool _analysis;
 
     [Fact]
     public void SingleSuccessfulTask() {
@@ -34,6 +36,8 @@ public class SingleSequenceTest {
             .Then(SuccessfulTask).Otherwise(SuccessfulRecovery)
             .Then(SuccessfulTask).Otherwise(SuccessfulRecovery);
         Assert.Equal(Succeeded, sequence.Execute(_c));
+        _analysis = new CommandResultsTool(sequence);
+        Assert.Equal(3, _analysis["Successful"]);
     }
 
     [Fact]
@@ -43,6 +47,11 @@ public class SingleSequenceTest {
             .Then(FailedTask).Otherwise(SuccessfulRecovery)
             .Then(SuccessfulTask).Otherwise(SuccessfulRecovery);
         Assert.Equal(Reversed, sequence.Execute(_c));
+        _analysis = new CommandResultsTool(sequence);
+        Assert.Equal(0, _analysis["Successful"]);
+        Assert.Equal(1, _analysis["Failure"]);
+        Assert.Equal(1, _analysis["NotExecuted"]);
+        Assert.Equal(1, _analysis["ReversalSuccess"]);
     }
 
     [Fact]
@@ -52,6 +61,12 @@ public class SingleSequenceTest {
             .Then(SuccessfulTask).Otherwise(FailedRecovery)
             .Then(FailedTask).Otherwise(SuccessfulRecovery);
         Assert.Equal(ReversalFailed, sequence.Execute(_c));
+        _analysis = new CommandResultsTool(sequence);
+        Assert.Equal(0, _analysis["Successful"]);
+        Assert.Equal(1, _analysis["Failure"]);
+        Assert.Equal(0, _analysis["NotExecuted"]);
+        Assert.Equal(1, _analysis["ReversalSuccess"]);
+        Assert.Equal(1, _analysis["ReversalFailure"]);
     }
 
     [Fact]
@@ -61,5 +76,10 @@ public class SingleSequenceTest {
             .Then(SuccessfulTask).Otherwise(SuccessfulRecovery)
             .Then(CrashedTask).Otherwise(SuccessfulRecovery);
         Assert.Equal(Reversed, sequence.Execute(_c));
+        _analysis = new CommandResultsTool(sequence);
+        Assert.Equal(0, _analysis["Successful"]);
+        Assert.Equal(1, _analysis["Failure"]);
+        Assert.Equal(0, _analysis["NotExecuted"]);
+        Assert.Equal(2, _analysis["ReversalSuccess"]);
     }
 }

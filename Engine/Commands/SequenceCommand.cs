@@ -34,14 +34,18 @@ public class SequenceCommand : Command {
                 },
             Failed => Failed,
             Suspended => Suspended,
-            Reversed => currentCommand.Undo(c),
+            Reversed => Reversed,
             ReversalFailed => ReversalFailed,
             _ => throw new Exception("Unexpected flow from Command execution")
         };
     }
 
     public ExecutionResult Undo(Context c) {
-        throw new NotImplementedException();
+        var reverseCommands = _commands.ToList();
+        reverseCommands.Reverse();
+        return (reverseCommands.Select(cmd => cmd.Undo(c)).All(result => result == Reversed))
+            ? Reversed
+            : ReversalFailed;
     }
     
     public void Accept(CommandVisitor visitor) {
@@ -60,6 +64,11 @@ public class SequenceCommand : Command {
     // DSL support
     public SimpleCommandBuilder Then(TaskBuilder taskBuilder) =>
         new(taskBuilder.Task(), this);
+    
+    public SequenceCommand Then(SequenceCommand sequence) {
+        _commands.Add(sequence);
+        return this;
+    }
 }
 
 // DSL syntactic sugar to kick off SequenceCommand creation
